@@ -36,3 +36,12 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# TypeScript
+*.tsbuildinfo
+
+# Test files (if temporary)
+test-connection.js
+test-db.js
+
+/generated/prisma
