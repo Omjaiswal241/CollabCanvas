@@ -1,135 +1,260 @@
-# Turborepo starter
+# CollabCanvas 🎨
 
-This Turborepo starter is maintained by the Turborepo core team.
+A real-time collaborative canvas application that enables multiple users to draw together in shared rooms. Built with a modern monorepo architecture using Turborepo, featuring Next.js, WebSockets, and PostgreSQL.
 
-## Using this example
+## 🌟 Features
 
-Run the following command:
+- **User Authentication**: Secure signup and signin with JWT tokens
+- **Room Management**: Create and join collaborative drawing rooms
+- **Real-time Collaboration**: Draw with others simultaneously using WebSocket connections
+- **Persistent Storage**: All drawings and chat messages are saved to PostgreSQL
+- **Modern Stack**: Built with Next.js 16, React 19, and TypeScript
+- **Monorepo Architecture**: Organized codebase with shared packages and independent services
 
-```sh
-npx create-turbo@latest
+## 🏗️ Architecture
+
+### Apps
+
+- **`collabcanvas-frontend`**: Next.js application with React for the user interface
+- **`http-backend`**: Express.js REST API for authentication and room management
+- **`ws-backend`**: WebSocket server for real-time drawing synchronization
+
+### Shared Packages
+
+- **`@repo/db`**: Prisma client and database schema
+- **`@repo/common`**: Shared TypeScript types and Zod validation schemas
+- **`@repo/backend-common`**: Shared backend configuration (JWT secrets, etc.)
+- **`@repo/ui`**: Reusable React UI components
+- **`@repo/eslint-config`**: Shared ESLint configurations
+- **`@repo/typescript-config`**: Shared TypeScript configurations
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Next.js 16**: React framework with App Router
+- **React 19**: UI library
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **Axios**: HTTP client for API requests
+- **TypeScript**: Type-safe JavaScript
+
+### Backend
+- **Express.js**: HTTP server framework
+- **WebSocket (ws)**: Real-time bidirectional communication
+- **JWT**: JSON Web Tokens for authentication
+- **CORS**: Cross-origin resource sharing support
+
+### Database
+- **PostgreSQL**: Relational database
+- **Prisma ORM**: Type-safe database client
+- **Prisma Adapter**: PostgreSQL connection adapter
+
+### Development Tools
+- **Turborepo**: High-performance build system for monorepos
+- **pnpm**: Fast, disk space efficient package manager
+- **TypeScript**: Static type checking across the entire codebase
+- **ESLint**: Code linting and quality enforcement
+- **Prettier**: Code formatting
+
+## 📋 Prerequisites
+
+- Node.js >= 18
+- pnpm 9.0.0
+- PostgreSQL database
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Omjaiswal241/CollabCanvas.git
+cd CollabCanvas
 ```
 
-## What's inside?
+### 2. Install dependencies
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 3. Set up environment variables
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+Create a `.env` file in the root directory:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/collabcanvas?schema=public"
+JWT_SECRET="your-secret-key-here"
 ```
 
-### Develop
+### 4. Set up the database
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+cd packages/db
+pnpm exec prisma migrate dev
+pnpm exec prisma generate
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 5. Start the development servers
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+In the root directory, run:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+pnpm dev
 ```
 
-### Remote Caching
+This will start:
+- Frontend at `http://localhost:3000`
+- HTTP Backend at `http://localhost:3001`
+- WebSocket Backend at `ws://localhost:8080`
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 📁 Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+CollabCanvas/
+├── apps/
+│   ├── collabcanvas-frontend/    # Next.js frontend application
+│   │   ├── app/                   # Next.js App Router pages
+│   │   │   ├── page.tsx          # Home page
+│   │   │   ├── signin/           # Sign in page
+│   │   │   ├── signup/           # Sign up page
+│   │   │   ├── canvas/[roomId]/  # Collaborative canvas room
+│   │   │   └── draw/             # Canvas drawing logic
+│   │   ├── components/           # React components
+│   │   └── config.ts             # Backend URLs configuration
+│   ├── http-backend/             # Express.js REST API
+│   │   └── src/
+│   │       ├── index.ts          # API routes (auth, rooms, chats)
+│   │       └── middleware.ts     # JWT authentication middleware
+│   └── ws-backend/               # WebSocket server
+│       └── src/
+│           └── index.ts          # Real-time drawing sync
+├── packages/
+│   ├── db/                       # Prisma database package
+│   │   ├── prisma/
+│   │   │   └── schema.prisma    # Database schema
+│   │   └── src/index.ts         # Prisma client configuration
+│   ├── common/                   # Shared types and schemas
+│   │   └── src/index.ts         # Zod validation schemas
+│   ├── backend-common/           # Backend configuration
+│   │   └── src/index.ts         # JWT secret and config
+│   ├── ui/                       # Shared UI components
+│   ├── eslint-config/            # ESLint configurations
+│   └── typescript-config/        # TypeScript configurations
+├── package.json
+├── pnpm-workspace.yaml
+└── turbo.json
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## 🗄️ Database Schema
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### User
+- `id`: UUID (Primary Key)
+- `email`: String (Unique)
+- `password`: String
+- `name`: String
+- `photo`: String (Optional)
 
+### Room
+- `id`: Integer (Primary Key)
+- `slug`: String (Unique)
+- `createdAt`: DateTime
+- `adminId`: String (Foreign Key to User)
+
+### Chat
+- `id`: Integer (Primary Key)
+- `roomId`: Integer (Foreign Key to Room)
+- `message`: String (Contains drawing shape data)
+- `userId`: String (Foreign Key to User)
+
+## 🔌 API Endpoints
+
+### HTTP Backend (Port 3001)
+
+- `POST /signup`: Create a new user account
+- `POST /signin`: Authenticate and receive JWT token
+- `POST /room`: Create a new drawing room (requires authentication)
+- `GET /chats/:roomId`: Get chat/drawing history for a room
+- `GET /room/:slug`: Get room details by slug
+
+### WebSocket Backend (Port 8080)
+
+Connect with JWT token as query parameter:
+```javascript
+ws://localhost:8080?token=YOUR_JWT_TOKEN
 ```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+**Message Types:**
+- `join_room`: Join a collaborative room
+- `leave_room`: Leave a room
+- `chat`: Send drawing data (shapes, coordinates)
+
+## 🎨 How It Works
+
+1. **Authentication**: Users sign up/sign in via the HTTP backend, receiving a JWT token
+2. **Room Creation**: Authenticated users can create rooms with unique slugs
+3. **WebSocket Connection**: Users connect to the WebSocket server with their JWT token
+4. **Room Joining**: Users join specific rooms to collaborate
+5. **Drawing Sync**: Canvas drawing events are broadcast to all users in the same room
+6. **Persistence**: All drawing data is stored as chat messages in PostgreSQL
+7. **History Loading**: When joining a room, existing shapes are loaded from the database
+
+## 🧪 Available Scripts
+
+### Root Level
+
+- `pnpm dev`: Start all development servers
+- `pnpm build`: Build all applications
+- `pnpm lint`: Lint all packages
+- `pnpm format`: Format code with Prettier
+
+### Package Specific
+
+- `pnpm --filter collabcanvas-frontend dev`: Run only frontend
+- `pnpm --filter http-backend dev`: Run only HTTP backend
+- `pnpm --filter ws-backend dev`: Run only WebSocket backend
+
+## 🔧 Configuration
+
+### Frontend Configuration
+
+Edit [`apps/collabcanvas-frontend/config.ts`](apps/collabcanvas-frontend/config.ts):
+
+```typescript
+export const HTTP_BACKEND = "http://localhost:3001";
+export const WS_URL = "ws://localhost:8080";
 ```
 
-## Useful Links
+### Backend Configuration
 
-Learn more about the power of Turborepo:
+Environment variables in `.env`:
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secret key for JWT token generation
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📝 License
+
+ISC
+
+## 👨‍💻 Author
+
+**Omjaiswal241**
+
+- GitHub: [@Omjaiswal241](https://github.com/Omjaiswal241)
+- Repository: [CollabCanvas](https://github.com/Omjaiswal241/CollabCanvas)
+
+## 🙏 Acknowledgments
+
+- Built with [Turborepo](https://turbo.build/repo)
+- Uses [Next.js](https://nextjs.org/) App Router
+- Database management with [Prisma](https://www.prisma.io/)
+- Real-time communication with [ws](https://github.com/websockets/ws)
+
+---
+
+Made with ❤️ by Om Jaiswal
