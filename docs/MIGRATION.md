@@ -168,7 +168,7 @@ collabcanvas-landing/
 
 2. **Room Creation**: Currently navigates to `/canvas/default-room` or `/canvas/:roomId`. Consider adding a room creation/selection page.
 
-3. **Legacy Frontend**: The Next.js frontend in `apps/collabcanvas-frontend` is now deprecated but kept for reference.
+3. **Legacy Frontend**: The Next.js frontend previously in `apps/collabcanvas-frontend` has been removed as it's been fully replaced by the Vite/React app in `apps/collabcanvas-landing`.
 
 ## Next Steps
 

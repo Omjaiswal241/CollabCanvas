@@ -40,8 +40,9 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 
-# Test files (if temporary)
-test-connection.js
-test-db.js
+# Scripts (now in scripts/ folder)
+# Uncomment if you want to ignore some scripts
+# scripts/test/*.js
+# scripts/setup/*.js
 
 /generated/prisma

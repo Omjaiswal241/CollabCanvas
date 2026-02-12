@@ -78,10 +78,16 @@ cd ../..
 
 # Start backend services
 pnpm dev
+```
 
-# Start frontend (in new terminal)
-cd collabcanvas-landing
-pnpm dev
+**Running Scripts:**
+```bash
+# Test scripts
+node scripts/test/test-signin.js
+node scripts/test/test-connection.js
+
+# Setup scripts  
+node scripts/setup/setup-database.js
 ```
 
 Visit `http://localhost:5173` and start collaborating! 🎉
@@ -92,7 +98,7 @@ Visit `http://localhost:5173` and start collaborating! 🎉
 
 ```
 CollabCanvas/
-├── 🎨 collabcanvas-landing/          # PRIMARY Frontend Application
+├── 🎨 collabcanvas-landing/          # PRIMARY Frontend Application (separate repo)
 │   ├── src/
 │   │   ├── components/               # React Components
 │   │   │   ├── Canvas.tsx           # Main canvas container
@@ -136,9 +142,6 @@ CollabCanvas/
 │   │   ├── dist/                    # Compiled JavaScript
 │   │   ├── tsconfig.json
 │   │   └── package.json
-│   │
-│   └── collabcanvas-frontend/       # Legacy Next.js (Deprecated)
-│       └── ...
 │
 ├── 🔧 packages/                     # Shared Workspace Packages
 │   ├── db/                          # Database Layer
@@ -177,6 +180,26 @@ CollabCanvas/
 │       ├── react-library.json       # React library tsconfig
 │       └── package.json
 │
+├── � scripts/                      # Development & Testing Scripts
+│   ├── test/                        # Test Scripts
+│   │   ├── test-auth-api.js         # Authentication API tests
+│   │   ├── test-canvas-data.js      # Canvas data tests
+│   │   ├── test-chat-endpoint.js    # Chat endpoint tests
+│   │   ├── test-chat.js             # Chat functionality tests
+│   │   ├── test-connection.js       # Connection tests
+│   │   ├── test-db.js               # Database tests
+│   │   ├── test-drawing-flow.js     # Drawing flow tests
+│   │   ├── test-existing-users.js   # User tests
+│   │   ├── test-pg-direct.js        # PostgreSQL direct tests
+│   │   ├── test-signin-now.js       # Signin tests
+│   │   └── test-signin.js           # Signin tests
+│   │
+│   └── setup/                       # Setup Scripts
+│       ├── add-canvas-table.js      # Create canvas table
+│       ├── check-db-status.js       # Check database status
+│       ├── setup-database.js        # Initialize database
+│       └── setup-database-retry.js  # Database setup with retry
+│
 ├── 📄 Configuration Files
 │   ├── .env                         # Environment variables (gitignored)
 │   ├── package.json                 # Root package.json
@@ -184,12 +207,12 @@ CollabCanvas/
 │   ├── turbo.json                   # Turborepo build pipeline
 │   └── tsconfig.json                # Root TypeScript config
 │
-└── 📚 Documentation
-    ├── README.md                    # Main documentation (this file)
+└── 📚 docs/                         # Documentation
     ├── BACKEND_INTEGRATION.md       # API integration guide
-    ├── TESTING_GUIDE.md             # Testing instructions
+    ├── CONTRIBUTING.md              # Contribution guidelines
+    ├── MIGRATION.md                 # Database migrations
     ├── SETUP_GUIDE.md               # Detailed setup guide
-    └── MIGRATION.md                 # Database migrations
+    └── TESTING_GUIDE.md             # Testing instructions
 ```
 
 ### Package Dependencies Flow
@@ -364,12 +387,22 @@ JWT_SECRET="change-this-in-production"
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for detailed information on:
+
+- Setting up the development environment
+- Code style guidelines
+- Commit message conventions
+- Pull request process
+- Testing requirements
+
+**Quick Start for Contributors:**
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Commit changes: `git commit -m 'feat: add amazing feature'`
 4. Push to branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
+
+For detailed guidelines, see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
 
 ---
 

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { middleware } from "./middleware.js";
 import { CreateUserSchema, SigninSchema, CreateRoomSchema } from "@repo/common";
@@ -18,10 +19,13 @@ app.post("/signup", async (req, res) => {
         })
     }
     try {
+        // Hash password before storing
+        const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
+        
         const user = await prismaClient.user.create({
             data: {
                 email: parsedData.data?.username,
-                password: parsedData.data.password,
+                password: hashedPassword,
                 name: parsedData.data.name
             }
         })
@@ -60,11 +64,20 @@ app.post("/signin", async (req, res) => {
     }
     const user = await prismaClient.user.findFirst({
         where: {
-            email: parsedData.data.username,
-            password: parsedData.data.password
+            email: parsedData.data.username
         }
     })
+    
     if (!user) {
+        res.status(403).json({
+            message: "Not authorized"
+        })
+        return;
+    }
+    
+    // Verify password using bcrypt
+    const passwordMatch = await bcrypt.compare(parsedData.data.password, user.password);
+    if (!passwordMatch) {
         res.status(403).json({
             message: "Not authorized"
         })

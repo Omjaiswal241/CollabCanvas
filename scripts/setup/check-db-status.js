@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { prismaClient } from "./packages/db/dist/index.js";
+import { prismaClient } from "../../packages/db/dist/index.js";
 
 console.log("Checking database status...\n");
 

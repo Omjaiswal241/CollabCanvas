@@ -1,6 +1,28 @@
 {
   "name": "CollabCanvas",
+  "version": "1.0.0",
+  "description": "A real-time collaborative whiteboard enabling multiple users to draw together, chat, and collaborate seamlessly with instant synchronization",
   "private": true,
+  "author": {
+    "name": "Om Jaiswal",
+    "url": "https://github.com/Omjaiswal241"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Omjaiswal241/CollabCanvas.git"
+  },
+  "license": "ISC",
+  "keywords": [
+    "collaborative-whiteboard",
+    "real-time",
+    "drawing",
+    "canvas",
+    "websocket",
+    "react",
+    "typescript",
+    "prisma",
+    "postgresql"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { prismaClient } from "./packages/db/dist/index.js";
+import { prismaClient } from "../../packages/db/dist/index.js";
 
 console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set (using connection pooler)" : "Not set");
 console.log("\nAttempting to wake up Neon database...");
