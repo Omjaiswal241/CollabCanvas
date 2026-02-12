@@ -3,7 +3,7 @@ import { WebSocketServer,WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import {prismaClient} from "@repo/db/client";
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8081 });
 
 interface User{
     ws:WebSocket,
@@ -83,20 +83,62 @@ wss.on('connection', function connection(ws, request) {
         const roomId=parsedData.roomId;
         const message=parsedData.message;
 
-        await prismaClient.chat.create({
+        const chat = await prismaClient.chat.create({
             data:{
                 roomId:Number(roomId),
                 message,
                 userId
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         });
+        
         users.forEach(user=>{
             if(user.rooms.includes(roomId))
             {
                 user.ws.send(JSON.stringify({
                     type:"chat",
-                    message:message,
-                    roomId
+                    message: chat.message,
+                    roomId,
+                    userId: chat.userId,
+                    userName: chat.user.name,
+                    chatId: chat.id,
+                    createdAt: chat.createdAt
+                }))
+            }
+        })
+    }
+    
+    if(parsedData.type=="draw" || parsedData.type=="erase" || parsedData.type=="clear")
+    {
+        const roomId=parsedData.roomId;
+        const drawData=parsedData.data;
+
+        // Save canvas data to database
+        await prismaClient.canvasData.create({
+            data:{
+                roomId:Number(roomId),
+                userId,
+                type: parsedData.type,
+                data: JSON.stringify(drawData)
+            }
+        });
+        
+        // Broadcast to all users in the room
+        users.forEach(user=>{
+            if(user.rooms.includes(roomId) && user.userId !== userId)
+            {
+                user.ws.send(JSON.stringify({
+                    type: parsedData.type,
+                    data: drawData,
+                    roomId,
+                    userId
                 }))
             }
         })

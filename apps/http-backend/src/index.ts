@@ -130,6 +130,45 @@ app.get("/chats/:roomId",async(req,res)=>
     
 })
 
+// Delete all chats for a room
+app.delete("/chats/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        // @ts-ignore
+        const userId = req.userId;
+        
+        // Check if user is the room admin
+        const room = await prismaClient.room.findFirst({
+            where: {
+                id: roomId,
+                adminId: userId
+            }
+        });
+        
+        if (!room) {
+            return res.status(403).json({ 
+                message: "Not authorized to clear chats in this room" 
+            });
+        }
+        
+        // Delete all chats for this room
+        await prismaClient.chat.deleteMany({
+            where: {
+                roomId: roomId
+            }
+        });
+        
+        res.json({ 
+            message: "All chats cleared successfully" 
+        });
+    } catch (e) {
+        console.error("Error clearing chats:", e);
+        res.status(500).json({ 
+            message: "Error clearing chats" 
+        });
+    }
+})
+
 app.get("/room/:slug",async(req,res)=>
 {
     const slug=req.params.slug;
@@ -142,4 +181,122 @@ app.get("/room/:slug",async(req,res)=>
         room
     })
 })
+
+// Get user profile
+app.get("/user/me", middleware, async(req, res) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const user = await prismaClient.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                photo: true,
+                createdAt: true
+            }
+        });
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        res.json({ user });
+    } catch (e) {
+        res.status(500).json({ message: "Error fetching user" });
+    }
+});
+
+// Get user's rooms
+app.get("/user/rooms", middleware, async(req, res) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const rooms = await prismaClient.room.findMany({
+            where: {
+                adminId: userId
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                id: true,
+                slug: true,
+                createdAt: true
+            }
+        });
+        
+        res.json({ rooms });
+    } catch (e) {
+        res.status(500).json({ message: "Error fetching rooms" });
+    }
+});
+
+// Get canvas data for a room
+app.get("/canvas/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        const canvasData = await prismaClient.canvasData.findMany({
+            where: {
+                roomId: roomId
+            },
+            orderBy: {
+                createdAt: 'asc'
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        
+        res.json({ canvasData });
+    } catch (e) {
+        res.status(500).json({ message: "Error fetching canvas data" });
+    }
+});
+
+// Clear all canvas data for a room
+app.delete("/canvas/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        // @ts-ignore
+        const userId = req.userId;
+        
+        // Check if user is the room admin
+        const room = await prismaClient.room.findFirst({
+            where: {
+                id: roomId,
+                adminId: userId
+            }
+        });
+        
+        if (!room) {
+            return res.status(403).json({ 
+                message: "Not authorized to clear canvas in this room" 
+            });
+        }
+        
+        // Delete all canvas data for this room
+        await prismaClient.canvasData.deleteMany({
+            where: {
+                roomId: roomId
+            }
+        });
+        
+        res.json({ 
+            message: "Canvas cleared successfully" 
+        });
+    } catch (e) {
+        console.error("Error clearing canvas:", e);
+        res.status(500).json({ 
+            message: "Error clearing canvas" 
+        });
+    }
+});
+
 app.listen(3001);

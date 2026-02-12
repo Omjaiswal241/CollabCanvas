@@ -1,534 +1,398 @@
 # CollabCanvas 🎨
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat&logo=vite)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat&logo=prisma)](https://www.prisma.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-316192?style=flat&logo=postgresql)](https://www.postgresql.org/)
-[![Turborepo](https://img.shields.io/badge/Turborepo-2-EF4444?style=flat&logo=turborepo)](https://turbo.build/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-green?style=flat)](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
 
-A **real-time collaborative canvas application** that enables multiple users to draw together in shared rooms. Built with Next.js, WebSockets, PostgreSQL, and Turborepo monorepo architecture.
+A **real-time collaborative whiteboard** enabling multiple users to draw together, chat, and collaborate seamlessly. Built with modern web technologies for instant synchronization across all connected users.
+
+---
 
 ## ✨ Features
 
-- 🎨 **5 Drawing Tools**: Circle, Rectangle, Pencil, Eraser, and Text
-- ⚡ **Real-time Collaboration**: Instant synchronization across all users
-- 🔐 **JWT Authentication**: Secure signup and signin
-- 💾 **Persistent Storage**: All drawings saved to PostgreSQL
-- 🏗️ **Monorepo Architecture**: Organized with Turborepo and shared packages
+### 🎨 Drawing Tools
+- **5 Tools**: Circle, Rectangle, Pencil, Eraser, Text
+- **Real-time Sync**: Instant collaboration across all users
+- **Persistent Canvas**: All drawings auto-saved to PostgreSQL
+- **Hover Highlighting**: Visual feedback when erasing shapes
+
+### 💬 Chat System
+- **Real-time Chat**: Message other users in the same room
+- **Message Persistence**: Chat history stored in database
+- **User Identification**: Your messages (right) vs others (left)
+- **Clear Chat**: Room admins can clear all messages
+
+### 🔐 Authentication & Rooms
+- **JWT Authentication**: Secure signup/signin
+- **Room Management**: Create and join collaborative rooms
+- **Share Codes**: Easy room sharing with unique slugs
+- **User Profiles**: Name, email, and avatar support
+
+### 🎯 Smart Features
+- **Canvas Persistence**: Shapes survive page refreshes
+- **Erase Tracking**: Deleted shapes stay deleted
+- **Clear Canvas**: Room admins can reset the entire canvas
+- **Modern UI**: Shadcn/ui components with dark mode support
+
+---
 
 ## 🛠️ Tech Stack
 
-**Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS 4, HTML Canvas API  
-**Backend**: Express.js, WebSocket (ws), JWT, CORS  
-**Database**: PostgreSQL, Prisma ORM  
-**Tools**: Turborepo, pnpm, ESLint, Zod
+| Category | Technologies |
+|----------|-------------|
+| **Frontend** | React 19, Vite 5, TypeScript, Tailwind CSS, Shadcn/ui |
+| **Backend** | Express.js, WebSocket (ws), JWT |
+| **Database** | PostgreSQL, Prisma ORM |
+| **Architecture** | Turborepo monorepo, pnpm workspaces |
 
-## 🏗️ Architecture
+---
 
-**Apps**:
-- `collabcanvas-frontend` - Next.js frontend
-- `http-backend` - Express.js REST API
-- `ws-backend` - WebSocket server
+## 🚀 Quick Start
 
-**Shared Packages**:
-- `@repo/db` - Prisma client & schema
-- `@repo/common` - Shared types & Zod schemas
-- `@repo/backend-common` - Backend config (JWT, etc.)
-- `@repo/ui` - React UI components
-- `@repo/eslint-config` - ESLint configs
-- `@repo/typescript-config` - TypeScript configs
+### Prerequisites
+- Node.js ≥ 18.0.0
+- pnpm ≥ 9.0.0
+- PostgreSQL ≥ 14
 
-
-
-## 📋 Prerequisites
-
-- Node.js >= 18.0.0
-- pnpm >= 9.0.0
-- PostgreSQL >= 14
-- Git
-
-## 🚀 Getting Started
-
-### 1. Clone the repository
+### Installation
 
 ```bash
+# Clone repository
 git clone https://github.com/Omjaiswal241/CollabCanvas.git
 cd CollabCanvas
-```
 
-### 2. Install dependencies
-
-```bash
+# Install dependencies
 pnpm install
-```
 
-This will install all dependencies for all workspace packages using pnpm's efficient linking.
+# Setup environment
+echo 'DATABASE_URL="postgresql://user:password@localhost:5432/collabcanvas"' > .env
+echo 'JWT_SECRET="your-secret-key-change-in-production"' >> .env
 
-### 3. Set up environment variables
-
-Create a `.env` file in the root directory:
-
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/collabcanvas?schema=public"
-JWT_SECRET="your-secret-key-here"
-```
-
-**Important**: Replace `user`, `password`, and database name with your PostgreSQL credentials.
-
-### 4. Set up the database
-
-Initialize the database and run migrations:
-
-```bash
+# Initialize database
 cd packages/db
 pnpm exec prisma migrate dev
 pnpm exec prisma generate
 cd ../..
-```
 
-This will:
-- Create the database if it doesn't exist
-- Run all migrations to create tables
-- Generate Prisma Client for type-safe database access
+# Start backend services
+pnpm dev
 
-### 5. Start the development servers
-
-From the root directory:
-
-```bash
+# Start frontend (in new terminal)
+cd collabcanvas-landing
 pnpm dev
 ```
 
-This will start all services concurrently:
-- 🌐 **Frontend**: `http://localhost:3000`
-- 🔧 **HTTP Backend**: `http://localhost:3001`
-- ⚡ **WebSocket Backend**: `ws://localhost:8080`
+Visit `http://localhost:5173` and start collaborating! 🎉
 
-Then visit `http://localhost:3000`, sign up, create a room, and start drawing!
-pnpm dev
-```
-
-This will start:
-- Frontend at `http://localhost:3000`
-- HTTP Backend at `http://localhost:3001`
-- WebSocket Backend at `ws://localhost:8080`
+---
 
 ## 📁 Project Structure
 
 ```
 CollabCanvas/
-├── apps/
-│   ├── collabcanvas-frontend/    # Next.js app
-│   ├── http-backend/             # Express REST API
-│   └── ws-backend/               # WebSocket server
-├── packages/
-│   ├── db/                      # Prisma schema & client
-│   ├── common/                  # Shared types & Zod schemas
-│   ├── backend-common/          # Backend config
-│   ├── ui/                      # Shared React components
-│   ├── eslint-config/           # ESLint configs
-│   └── typescript-config/       # TypeScript configs
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
+├── 🎨 collabcanvas-landing/          # PRIMARY Frontend Application
+│   ├── src/
+│   │   ├── components/               # React Components
+│   │   │   ├── Canvas.tsx           # Main canvas container
+│   │   │   ├── ChatPanel.tsx        # Real-time chat interface
+│   │   │   ├── IconButton.tsx       # Toolbar buttons
+│   │   │   ├── RoomCanvas.tsx       # Room-specific canvas
+│   │   │   └── ui/                  # Shadcn/ui primitives
+│   │   ├── pages/                   # Route pages
+│   │   │   ├── Index.tsx            # Landing page
+│   │   │   ├── SignIn.tsx           # Authentication
+│   │   │   ├── SignUp.tsx           # User registration
+│   │   │   ├── Rooms.tsx            # Room management
+│   │   │   └── Canvas.tsx           # Drawing canvas
+│   │   ├── lib/
+│   │   │   ├── draw/
+│   │   │   │   ├── Game.ts          # Canvas logic & WebSocket
+│   │   │   │   └── http.ts          # Canvas data API
+│   │   │   ├── api.ts               # HTTP client & endpoints
+│   │   │   ├── config.ts            # Backend URLs
+│   │   │   └── utils.ts             # Utility functions
+│   │   └── hooks/                   # Custom React hooks
+│   ├── public/
+│   │   ├── favicon.png              # Website icon
+│   │   └── robots.txt
+│   ├── index.html                   # HTML entry point
+│   ├── vite.config.ts               # Vite configuration
+│   └── package.json
+│
+├── 📦 apps/
+│   ├── http-backend/                # REST API Server (Port 3001)
+│   │   ├── src/
+│   │   │   ├── index.ts             # Express server & routes
+│   │   │   └── middleware.ts        # JWT authentication
+│   │   ├── dist/                    # Compiled JavaScript
+│   │   ├── tsconfig.json
+│   │   └── package.json
+│   │
+│   ├── ws-backend/                  # WebSocket Server (Port 8081)
+│   │   ├── src/
+│   │   │   └── index.ts             # WebSocket server & handlers
+│   │   ├── dist/                    # Compiled JavaScript
+│   │   ├── tsconfig.json
+│   │   └── package.json
+│   │
+│   └── collabcanvas-frontend/       # Legacy Next.js (Deprecated)
+│       └── ...
+│
+├── 🔧 packages/                     # Shared Workspace Packages
+│   ├── db/                          # Database Layer
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma        # Database schema
+│   │   │   └── migrations/          # Migration history
+│   │   ├── src/
+│   │   │   └── index.ts             # Prisma client export
+│   │   ├── prisma.config.ts
+│   │   └── package.json
+│   │
+│   ├── common/                      # Shared Types & Schemas
+│   │   ├── src/
+│   │   │   └── index.ts             # Zod schemas, TypeScript types
+│   │   └── package.json
+│   │
+│   ├── backend-common/              # Backend Configuration
+│   │   ├── src/
+│   │   │   └── config.ts            # JWT_SECRET, env config
+│   │   └── package.json
+│   │
+│   ├── ui/                          # Shared React Components
+│   │   ├── src/
+│   │   │   └── components/          # Reusable UI components
+│   │   └── package.json
+│   │
+│   ├── eslint-config/               # ESLint Configurations
+│   │   ├── base.js                  # Base config
+│   │   ├── next.js                  # Next.js config
+│   │   ├── react-internal.js        # React config
+│   │   └── package.json
+│   │
+│   └── typescript-config/           # TypeScript Configurations
+│       ├── base.json                # Base tsconfig
+│       ├── nextjs.json              # Next.js tsconfig
+│       ├── react-library.json       # React library tsconfig
+│       └── package.json
+│
+├── 📄 Configuration Files
+│   ├── .env                         # Environment variables (gitignored)
+│   ├── package.json                 # Root package.json
+│   ├── pnpm-workspace.yaml          # pnpm workspace config
+│   ├── turbo.json                   # Turborepo build pipeline
+│   └── tsconfig.json                # Root TypeScript config
+│
+└── 📚 Documentation
+    ├── README.md                    # Main documentation (this file)
+    ├── BACKEND_INTEGRATION.md       # API integration guide
+    ├── TESTING_GUIDE.md             # Testing instructions
+    ├── SETUP_GUIDE.md               # Detailed setup guide
+    └── MIGRATION.md                 # Database migrations
 ```
+
+### Package Dependencies Flow
+
+```
+collabcanvas-landing
+  ├─→ @repo/common (types, schemas)
+  └─→ @repo/ui (components)
+
+http-backend
+  ├─→ @repo/db (Prisma client)
+  ├─→ @repo/common (validation)
+  └─→ @repo/backend-common (JWT config)
+
+ws-backend
+  ├─→ @repo/db (Prisma client)
+  ├─→ @repo/common (types)
+  └─→ @repo/backend-common (JWT config)
+```
+
+### Key Files to Know
+
+| File | Purpose | Important For |
+|------|---------|---------------|
+| `collabcanvas-landing/src/lib/draw/Game.ts` | Canvas rendering & WebSocket logic | Drawing features |
+| `collabcanvas-landing/src/components/ChatPanel.tsx` | Real-time chat interface | Chat functionality |
+| `apps/http-backend/src/index.ts` | REST API endpoints | Backend integration |
+| `apps/ws-backend/src/index.ts` | WebSocket server | Real-time sync |
+| `packages/db/prisma/schema.prisma` | Database schema | Database structure |
+| `packages/common/src/index.ts` | Shared types & Zod schemas | Type safety |
+| `collabcanvas-landing/src/lib/api.ts` | API client & axios setup | HTTP requests |
+| `collabcanvas-landing/src/lib/config.ts` | Backend URL configuration | Environment setup |
+
+---
+
+## 🔌 API Reference
+
+### HTTP Endpoints (Port 3001)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/signup` | Create user account | ⛔ No |
+| `POST` | `/signin` | Authenticate & get JWT | ⛔ No |
+| `POST` | `/room` | Create new room | ✅ Yes |
+| `GET` | `/room/:slug` | Get room by name | ⛔ No |
+| `GET` | `/user/me` | Get user profile | ✅ Yes |
+| `GET` | `/user/rooms` | List user's rooms | ✅ Yes |
+| `GET` | `/chats/:roomId` | Load chat history | ⛔ No |
+| `DELETE` | `/chats/:roomId` | Clear all chats | ✅ Admin |
+| `GET` | `/canvas/:roomId` | Load canvas data | ✅ Yes |
+| `DELETE` | `/canvas/:roomId` | Clear canvas | ✅ Admin |
+
+### WebSocket (Port 8081)
+**Connect**: `ws://localhost:8081?token=YOUR_JWT_TOKEN`
+
+**Message Types**:
+- `join_room` - Join a collaborative room
+- `leave_room` - Leave current room
+- `draw` - Broadcast new shape
+- `erase` - Remove shape by index
+- `clear` - Clear entire canvas
+- `chat` - Send/receive chat messages
+
+---
 
 ## 🗄️ Database Schema
 
-**User**: `id` (UUID), `email` (unique), `password`, `name`, `photo` (optional)  
-**Room**: `id`, `slug` (unique), `createdAt`, `adminId` (FK to User)  
-**Chat**: `id`, `roomId` (FK to Room), `message` (JSON shape data), `userId` (FK to User)
+```prisma
+User {
+  id        String   (UUID, PK)
+  email     String   (Unique)
+  password  String
+  name      String
+  photo     String?
+}
 
-## 🔌 API Endpoints
+Room {
+  id        Int      (PK)
+  slug      String   (Unique)
+  adminId   String   (FK → User)
+  createdAt DateTime
+}
 
-### HTTP Backend (Port 3001)
-- `POST /signup` - Create user account
-- `POST /signin` - Authenticate & get JWT token
-- `POST /room` - Create room (requires auth)
-- `GET /chats/:roomId` - Get room drawing history
-- `GET /room/:slug` - Get room details
+Chat {
+  id        Int      (PK)
+  roomId    Int      (FK → Room)
+  message   String
+  userId    String   (FK → User)
+  createdAt DateTime
+}
 
-### WebSocket (Port 8080)
-Connect: `ws://localhost:8080?token=YOUR_JWT_TOKEN`
-
-**Messages**:
-- `join_room` - Join a room
-- `leave_room` - Leave a room
-- `chat` - Send/receive drawing shapes
-- `delete` - Delete shapes
-
-**Shape Types**: `rect`, `circle`, `pencil`, `text`
-
-
-
-## 🧪 Available Scripts
-
-### Root Level
-
-- `pnpm dev`: Start all development servers concurrently
-- `pnpm build`: Build all applications and packages
-- `pnpm lint`: Lint all packages with ESLint
-- `pnpm format`: Format code with Prettier
-
-### Package Specific
-
-- `pnpm --filter collabcanvas-frontend dev`: Run only frontend development server
-- `pnpm --filter http-backend dev`: Run only HTTP backend server
-- `pnpm --filter ws-backend dev`: Run only WebSocket backend server
-
-## 🧪 Testing
-
-### Manual Testing
-
-Currently, the project relies on manual testing. Here's how to test key features:
-
-#### Authentication Flow
-1. Start all services with `pnpm dev`
-2. Navigate to signup page
-3. Create account with valid email/password
-4. Verify user created in database: `pnpm exec prisma studio`
-5. Sign in with credentials
-6. Verify JWT token received in browser DevTools
-
-#### Drawing Tools
-1. Create/join a room
-2. Test each tool (circle, rectangle, pencil, eraser, text)
-3. Verify shapes render correctly
-4. Check shapes persist in database (Chat table)
-5. Verify canvas clears and redraws properly
-
-#### Real-time Collaboration
-1. Open room in two browser windows
-2. Draw in one window
-3. Verify shape appears in both windows instantly
-4. Test deletion in one window
-5. Verify deletion syncs to other window
-6. Check WebSocket messages in Network tab
-
-#### Database Testing
-```bash
-# View database in browser
-cd packages/db
-pnpm exec prisma studio
-
-# Check migrations status
-pnpm exec prisma migrate status
-
-# Reset database (CAREFUL - deletes all data)
-pnpm exec prisma migrate reset
+CanvasData {
+  id        Int      (PK)
+  roomId    Int      (FK → Room)
+  userId    String   (FK → User)
+  type      String   (draw | erase | clear)
+  data      String   (JSON)
+  createdAt DateTime
+}
 ```
 
-### Future Testing Plans
-- [ ] Unit tests with Jest/Vitest
-- [ ] Component tests with React Testing Library
-- [ ] E2E tests with Playwright
-- [ ] API integration tests with Supertest
-- [ ] WebSocket connection tests
-- [ ] Load testing with Artillery or k6
+---
 
-## 🎨 Drawing Tools Guide
+## 🎯 Usage Flow
 
-### Circle Tool
-- Click and drag to define the circle's bounding box
-- Radius calculated from the maximum of width or height
-- Released circles are outlined in white
+1. **Sign Up** → Create account at `/signup`
+2. **Sign In** → Authenticate at `/signin`
+3. **Rooms** → Create or join rooms at `/rooms`
+4. **Canvas** → Draw, chat, collaborate at `/canvas/:roomId`
+5. **Share** → Copy room code to invite others
 
-### Rectangle Tool
-- Click and drag to create rectangles
-- Supports negative dimensions (drag in any direction)
-- Dimensions normalized during rendering
-
-### Pencil Tool
-- Free-hand drawing with smooth curves
-- Captures points during mouse movement
-- Line cap and join set to "round" for smooth appearance
-- Minimum 2 points required to create a stroke
-
-### Eraser Tool
-- Hover over shapes to see red highlighting
-- Click to delete highlighted shape
-- Uses collision detection algorithms:
-  - **Rectangles**: Point-in-rectangle test with normalized bounds
-  - **Circles**: Distance from center compared to radius
-  - **Pencil**: Point-to-line distance with 12px threshold
-  - **Text**: Point-in-bounding-box test
-- Deletion synchronized across all clients
-
-### Text Tool
-- Click to position text
-- Prompt opens for text input
-- Default font size: 24px Arial
-- Baseline set to "top" for consistent positioning
-- Empty or whitespace-only text rejected
+---
 
 ## 🔧 Configuration
 
-### Frontend Configuration
-
-Edit [`apps/collabcanvas-frontend/config.ts`](apps/collabcanvas-frontend/config.ts):
-
+### Frontend (`collabcanvas-landing/src/lib/config.ts`)
 ```typescript
 export const HTTP_BACKEND = "http://localhost:3001";
-export const WS_URL = "ws://localhost:8080";
+export const WS_URL = "ws://localhost:8081";
 ```
 
-### Backend Configuration
-
-Environment variables in `.env`:
-- `DATABASE_URL`: PostgreSQL connection string
-- `JWT_SECRET`: Secret key for JWT token generation
-
-Example `.env` file:
+### Backend (`.env`)
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/collabcanvas?schema=public"
-JWT_SECRET="your-very-secure-secret-key-here-change-in-production"
+DATABASE_URL="postgresql://user:password@localhost:5432/collabcanvas"
+JWT_SECRET="change-this-in-production"
 ```
 
-## ⚡ Performance & Optimization
+---
 
-### Canvas Rendering
-- **Efficient Redraw**: Full canvas clear and redraw on any change
-- **Shape Batching**: All shapes rendered in single paint cycle
-- **Line Optimization**: Rounded line caps and joins for smooth pencil strokes
-- **Hover Highlighting**: Minimal redraws for eraser hover states
+## 🎨 Drawing Tools Guide
 
-### Network Optimization
-- **Binary Protocol**: WebSocket messages use JSON (consider MessagePack for optimization)
-- **Shape History Limit**: Only last 50 shapes fetched per room (configurable)
-- **Connection Reuse**: Single WebSocket connection per client
-- **Delta Updates**: Only new/deleted shapes transmitted (not full state)
+| Tool | Usage | Notes |
+|------|-------|-------|
+| **Circle** | Click & drag | Radius from max(width, height) |
+| **Rectangle** | Click & drag | Supports negative dimensions |
+| **Pencil** | Free-hand draw | Smooth curves, rounded caps |
+| **Eraser** | Click shape | Hover to highlight before delete |
+| **Text** | Click to place | Enter text in prompt (24px Arial) |
 
-### Database Performance
-- **Indexed Queries**: Primary keys and unique constraints for fast lookups
-- **Connection Pooling**: Prisma manages PostgreSQL connections efficiently
-- **Selective Fetch**: ORDER BY and TAKE for paginated shape history
-- **Write Optimization**: Async database writes don't block WebSocket broadcasts
+---
 
-### Best Practices
-- **Client-Side Prediction**: Immediate local render before server confirmation
-- **Collision Detection**: Optimized algorithms for shape hit testing
-- **Memory Management**: Proper cleanup on component unmount
-- **Canvas Sizing**: Fixed dimensions prevent layout recalculation
+## 🚧 Known Limitations
 
-## 🔍 Troubleshooting
+- ⚠️ Passwords stored in plain text (NOT production-ready)
+- No rate limiting on API endpoints
+- Eraser uses array index (potential race conditions)
+- Fixed white color for all shapes
+- No undo/redo functionality
+- Desktop-optimized (limited mobile support)
 
-### Database Connection Issues
-- Ensure PostgreSQL is running on the specified port
-- Verify database credentials in `DATABASE_URL`
-- Check if the database exists: `psql -l`
-- Run migrations: `cd packages/db && pnpm exec prisma migrate dev`
+---
 
-### WebSocket Connection Failed
-- Verify JWT token is valid and not expired
-- Check if WS backend is running on port 8080
-- Ensure firewall allows WebSocket connections
-- Check browser console for connection errors
+## 🔮 Planned Features
 
-### Shapes Not Syncing
-- Confirm all users are in the same room
-- Check WebSocket connection status
-- Verify database is accepting writes
-- Check server logs for broadcast errors
+- [ ] Password hashing (bcrypt)
+- [ ] Color picker & line width control
+- [ ] Undo/redo functionality
+- [ ] Shape editing & moving
+- [ ] User presence indicators
+- [ ] Mobile touch support
+- [ ] Export canvas (PNG/SVG)
+- [ ] Public/private rooms
 
-### Build Errors
-- Clear node_modules: `rm -rf node_modules && pnpm install`
-- Clear Turborepo cache: `pnpm exec turbo clean`
-- Regenerate Prisma client: `cd packages/db && pnpm exec prisma generate`
+---
 
-## ⚠️ Known Limitations
+## 📚 Documentation
 
-- **Drawing History**: Only last 50 shapes loaded per room (configurable in backend)
-- **Concurrent Editing**: No conflict resolution for simultaneous edits
-- **Shape Deletion**: Deletion by index may cause race conditions with rapid additions
-- **Text Editing**: Once created, text content cannot be edited (only deleted)
-- **Undo/Redo**: Not currently implemented
-- **Color Selection**: All shapes drawn in white (hardcoded)
-- **Line Width**: Fixed line widths for all shapes
-- **Mobile Support**: Optimized for desktop, touch events not fully supported
+- **[BACKEND_INTEGRATION.md](BACKEND_INTEGRATION.md)** - Complete API integration guide
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Step-by-step testing checklist
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed setup instructions
 
-## 🚀 Deployment Considerations
-
-### Environment Variables
-- Set strong `JWT_SECRET` in production
-- Use connection pooling for `DATABASE_URL` (e.g., with Prisma Data Platform)
-
-### Security
-- Implement rate limiting on authentication endpoints
-- Add password hashing (currently storing plain text - **NOT PRODUCTION READY**)
-- Enable HTTPS/WSS for encrypted connections
-- Implement CORS restrictions for specific domains
-
-### Scaling
-- Consider Redis for WebSocket session management
-- Implement horizontal scaling with sticky sessions or shared state
-- Use PostgreSQL read replicas for shape history queries
-- Add CDN for frontend assets
-
-## 🚧 Future Enhancements
-
-### High Priority
-- [ ] **Password Hashing**: Implement bcrypt/argon2 for secure password storage
-- [ ] **Color Picker**: Allow users to select colors for shapes
-- [ ] **Line Width Control**: Adjustable stroke width for all drawing tools
-- [ ] **Undo/Redo**: Implement local and synchronized undo/redo functionality
-- [ ] **Shape Editing**: Ability to move, resize, and edit existing shapes
-- [ ] **User Presence**: Show active users and cursor positions in real-time
-
-### Medium Priority
-- [ ] **Mobile Support**: Touch event handlers for tablets and phones
-- [ ] **Export Canvas**: Download drawings as PNG/SVG/PDF
-- [ ] **Layers System**: Multiple layers for complex drawings
-- [ ] **Shape Selection**: Multi-select, grouping, and bulk operations
-- [ ] **Grid & Snap**: Alignment guides and snap-to-grid functionality
-- [ ] **Room Permissions**: Public/private rooms, view-only access
-
-### Low Priority
-- [ ] **Chat Feature**: Text chat alongside collaborative drawing
-- [ ] **Drawing Templates**: Predefined templates and backgrounds
-- [ ] **Animation**: Record and playback drawing sessions
-- [ ] **Shape Library**: Save and reuse custom shapes
-- [ ] **Collaborative Cursors**: See other users' cursor positions
-- [ ] **Version History**: Timeline of canvas changes with restore capability
-
-### Technical Improvements
-- [ ] **Optimized Rendering**: Canvas optimization for hundreds of shapes
-- [ ] **Conflict Resolution**: CRDT-based approach for concurrent edits
-- [ ] **Connection Recovery**: Auto-reconnect with state sync
-- [ ] **Rate Limiting**: Implement rate limits on API and WebSocket
-- [ ] **Testing**: Unit, integration, and E2E tests
-- [ ] **Docker Support**: Containerization for easy deployment
-- [ ] **CI/CD Pipeline**: Automated testing and deployment
+---
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
-
-### Getting Started
+Contributions welcome! Please:
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/CollabCanvas.git`
-3. Create a feature branch: `git checkout -b feature/amazing-feature`
-4. Install dependencies: `pnpm install`
-5. Make your changes
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'feat: add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-### Code Standards
-- Follow existing code style and conventions
-- Write TypeScript with proper typing (avoid `any`)
-- Add Zod schemas for new API endpoints
-- Update Prisma schema if database changes needed
-- Test your changes across all affected packages
-
-### Commit Guidelines
-- Use descriptive commit messages
-- Follow conventional commits format: `type(scope): message`
-- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-- Example: `feat(canvas): add color picker tool`
-
-### Pull Request Process
-1. Update documentation for significant changes
-2. Ensure the build passes: `pnpm build`
-3. Run linting: `pnpm lint`
-4. Push to your branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request with clear description
-6. Link relevant issues if applicable
-
-### Development Tips
-- Use Turborepo for efficient builds: changes trigger only affected packages
-- Prisma changes require: `cd packages/db && pnpm exec prisma generate`
-- Test WebSocket changes with multiple browser windows
-- Check database state with: `pnpm exec prisma studio`
-
-## ❓ Frequently Asked Questions
-
-### General Questions
-
-**Q: Is this production-ready?**  
-A: No, this is a demonstration/learning project. Key issues: passwords stored in plain text, no rate limiting, limited error handling, and no comprehensive security measures.
-
-**Q: Can I use this for my project?**  
-A: Yes! It's ISC licensed. However, please address security concerns (password hashing, validation, rate limiting) before production use.
-
-**Q: How many users can collaborate simultaneously?**  
-A: Theoretical limit depends on server resources. Not optimized for scale yet - recommend testing with <50 concurrent users per room.
-
-### Technical Questions
-
-**Q: Why are shapes stored as chat messages?**  
-A: The Chat table acts as an event log. Each message contains shape data, allowing history replay and extensibility for future features like chat integration.
-
-**Q: How does shape deletion work with indices?**  
-A: Shapes are deleted by array index. This can cause race conditions if shapes are added/deleted simultaneously. Future enhancement: use unique shape IDs.
-
-**Q: Can I add more drawing tools?**  
-A: Yes! Add new tool types to the `Tool` type in [Canvas.tsx](apps/collabcanvas-frontend/components/Canvas.tsx), implement rendering in [Game.ts](apps/collabcanvas-frontend/app/draw/Game.ts), and add the tool button to the toolbar.
-
-**Q: How do I change canvas background color?**  
-A: Modify the `clearCanvas()` method in [Game.ts](apps/collabcanvas-frontend/app/draw/Game.ts) line ~205. Change `ctx.fillStyle` and `ctx.fillRect()` values.
-
-**Q: Can I deploy this on Vercel/Netlify?**  
-A: Frontend: Yes. Backends: You'll need separate hosting for Express and WebSocket servers (Railway, Render, DigitalOcean, or AWS). WebSocket requires persistent connections.
-
-### Development Questions
-
-**Q: How do I add a new API endpoint?**  
-A: 
-1. Add route in [http-backend/src/index.ts](apps/http-backend/src/index.ts)
-2. Create Zod schema in [packages/common/src/index.ts](packages/common/src/index.ts)
-3. Update Prisma schema if database changes needed
-4. Run `pnpm exec prisma migrate dev` and `pnpm exec prisma generate`
-
-**Q: Why is Turborepo used?**  
-A: Turborepo provides intelligent caching and parallel execution for monorepo builds. Changes to shared packages automatically trigger rebuilds in dependent apps.
-
-**Q: Package installation fails - what should I do?**  
-A: Ensure you're using pnpm 9+. Try: `pnpm install --frozen-lockfile`. If issues persist, delete `node_modules` and `pnpm-lock.yaml`, then reinstall.
+---
 
 ## 📝 License
 
-ISC
+ISC License - see [LICENSE](LICENSE) for details
+
+---
 
 ## 👨‍💻 Author
 
-**Omjaiswal241**
-
-- GitHub: [@Omjaiswal241](https://github.com/Omjaiswal241)
-- Repository: [CollabCanvas](https://github.com/Omjaiswal241/CollabCanvas)
-
-## 🙏 Acknowledgments
-
-### Technologies
-- [Turborepo](https://turbo.build/repo) - High-performance build system for JavaScript/TypeScript monorepos
-- [Next.js](https://nextjs.org/) - The React Framework for Production with App Router
-- [Prisma](https://www.prisma.io/) - Next-generation ORM for Node.js and TypeScript
-- [ws](https://github.com/websockets/ws) - Simple and fast WebSocket library for Node.js
-- [Zod](https://zod.dev/) - TypeScript-first schema validation with static type inference
-- [Lucide](https://lucide.dev/) - Beautiful & consistent icon toolkit
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-
-### Inspiration
-- Collaborative drawing tools like Excalidraw and Google Jamboard
-- Real-time collaboration patterns from Figma and Notion
-- Monorepo architecture best practices from Vercel
-
-### Learning Resources
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Best Practices](https://www.prisma.io/docs/guides/performance-and-optimization)
-- [WebSocket MDN Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-- [Turborepo Handbook](https://turbo.build/repo/docs/handbook)
-
-### Special Thanks
-- To the open-source community for creating amazing tools
-- Contributors and testers who help improve this project
-- Everyone using CollabCanvas for learning and collaboration
+**Om Jaiswal**  
+GitHub: [@Omjaiswal241](https://github.com/Omjaiswal241)  
+Repository: [CollabCanvas](https://github.com/Omjaiswal241/CollabCanvas)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by [Om Jaiswal](https://github.com/Omjaiswal241)**
+### ⭐ Star this repo if you found it helpful!
 
-⭐ Star this repo if you found it helpful!
+[Report Bug](https://github.com/Omjaiswal241/CollabCanvas/issues) · [Request Feature](https://github.com/Omjaiswal241/CollabCanvas/issues) · [Documentation](https://github.com/Omjaiswal241/CollabCanvas/wiki)
 
-[Report Bug](https://github.com/Omjaiswal241/CollabCanvas/issues) · [Request Feature](https://github.com/Omjaiswal241/CollabCanvas/issues) · [Contribute](https://github.com/Omjaiswal241/CollabCanvas/pulls)
+Made with ❤️ by [Om Jaiswal](https://github.com/Omjaiswal241)
 
 </div>

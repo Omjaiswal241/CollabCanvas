@@ -1,33 +1,71 @@
 "use client";
 
-import { initDraw } from "@/app/draw";
 import { WS_URL } from "@/config";
-import { useEffect, useRef, useState } from "react";
-import{Canvas} from "./Canvas";
+import { useEffect, useState } from "react";
+import { Canvas } from "./Canvas";
+import { useRouter } from "next/navigation";
 
-export function RoomCanvas({roomId}:{roomId:string})
-{
-    const [socket,setSocket]=useState<WebSocket | null>(null);
-    useEffect(()=>
-    {
-        const ws=new WebSocket(`${WS_URL}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmODcyZGNkZS1hMWIxLTRjYjAtOTY2NS04NmE0ZDc0YzBmYjEiLCJpYXQiOjE3NzA3NTU4NzN9.F8B7BeczijIA6RYcpcSsriBiWm9Zzgw49ZImoqvLFQ4`)
-        ws.onopen=()=>
-        {
-            setSocket(ws);
-            const data=JSON.stringify({
-                type:"join_room",
-                roomId
-            })
-            ws.send(data);
-        }
-    },[])
-    if(!socket)
-    {
-        return <div>
-            Connecting to server....
-        </div>
+export function RoomCanvas({ roomId }: { roomId: string }) {
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signin");
+      return;
     }
-    return <div>
-        <Canvas roomId={roomId} socket={socket}/>
-        </div>
+
+    try {
+      const ws = new WebSocket(`${WS_URL}?token=${token}`);
+      
+      ws.onopen = () => {
+        setSocket(ws);
+        const data = JSON.stringify({
+          type: "join_room",
+          roomId,
+        });
+        ws.send(data);
+      };
+
+      ws.onerror = () => {
+        setError("Failed to connect to server");
+      };
+
+      ws.onclose = () => {
+        setError("Connection closed");
+      };
+
+      return () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      };
+    } catch (e) {
+      setError("Failed to establish connection");
+    }
+  }, [roomId, router]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-600 text-xl">{error}</div>
+      </div>
+    );
+  }
+
+  if (!socket) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl">Connecting to server....</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen w-screen">
+      <Canvas roomId={roomId} socket={socket} />
+    </div>
+  );
 }
