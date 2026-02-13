@@ -46,13 +46,13 @@ A **real-time collaborative whiteboard** enabling multiple users to draw togethe
 
 ### 🎨 Drawing Tools
 - **7 Tools**: Circle, Rectangle, Line, Triangle, Pencil, Eraser, Text
-- **Real-time Collaboration**: See drawings from other users instantly (1.5s polling)
+- **Real-time Collaboration**: Instant shape updates via WebSocket broadcasting (no polling!)
 - **Persistent Canvas**: All shapes auto-saved to PostgreSQL with database IDs
 - **Smart Eraser**: Click shapes to delete them (syncs across all users)
 - **Canvas Reset**: Clear all shapes (admin only)
 
 ### 💬 Chat System
-- **Real-time Chat**: Message other users in the same room
+- **Real-time Chat**: Instant message delivery via WebSocket
 - **Message Persistence**: Chat history stored in database
 - **User Identification**: Your messages (right) vs others (left)
 - **Clear Chat**: Room admins can clear all messages
@@ -216,6 +216,8 @@ CollabCanvas/
 │   │   │   │   ├── RoomHeader.tsx   # Room navigation header
 │   │   │   │   └── index.ts         # Barrel exports
 │   │   │   └── ui/                  # Shadcn/ui primitives
+│   │   ├── contexts/                # React Contexts
+│   │   │   └── WebSocketContext.tsx # Shared WebSocket connection
 │   │   ├── pages/                   # Route pages
 │   │   │   ├── Index.tsx            # Landing page
 │   │   │   ├── SignIn.tsx           # Authentication
@@ -229,10 +231,11 @@ CollabCanvas/
 │   │   │   ├── canvasService.ts     # Canvas CRUD operations
 │   │   │   └── index.ts             # Barrel exports
 │   │   ├── hooks/                   # Custom React hooks
-│   │   │   ├── useCanvasData.ts     # Canvas state & data fetching
+│   │   │   ├── useCanvasData.ts     # Canvas state & WebSocket sync
 │   │   │   ├── useCanvasDrawing.ts  # Drawing interactions
 │   │   │   ├── useCanvasResize.ts   # Canvas resizing logic
-│   │   │   ├── useChat.ts           # Chat functionality
+│   │   │   ├── useChat.ts           # Chat via WebSocket
+│   │   │   ├── useWebSocket.ts      # WebSocket connection (deprecated)
 │   │   │   └── index.ts             # Barrel exports
 │   │   ├── types/                   # TypeScript definitions
 │   │   │   ├── room.ts              # Room, Shape, Message types
@@ -368,9 +371,10 @@ ws-backend
 |------|---------|---------------|
 | **Frontend Architecture** |
 | `collabcanvas-landing/src/pages/Room.tsx` | Main room orchestrator (140 lines) | Room coordination |
+| `collabcanvas-landing/src/contexts/WebSocketContext.tsx` | Shared WebSocket connection & pub-sub | Real-time updates |
 | `collabcanvas-landing/src/hooks/useCanvasDrawing.ts` | Drawing interactions & mouse events | Drawing features |
 | `collabcanvas-landing/src/hooks/useCanvasData.ts` | Canvas state & real-time sync | Data persistence |  
-| `collabcanvas-landing/src/hooks/useChat.ts` | Chat functionality & polling | Chat system |
+| `collabcanvas-landing/src/hooks/useChat.ts` | Chat via WebSocket | Chat system |
 | `collabcanvas-landing/src/utils/canvasUtils.ts` | Shape rendering & collision detection | Canvas logic |
 | `collabcanvas-landing/src/services/canvasService.ts` | Canvas API calls | Backend integration |
 | `collabcanvas-landing/src/components/room/*` | Reusable room components | UI components |
@@ -519,16 +523,16 @@ VITE_WS_URL=ws://localhost:8080
 | **Text** | Click to place | Enter text in prompt (24px Arial italic) |
 
 **Real-time Collaboration:**
-- All shapes sync across users within 1.5 seconds
+- All shapes sync instantly via WebSocket broadcasting
 - Erasures are immediately reflected for all users
 - Canvas state persists through page refreshes
+- Automatic reconnection if connection drops
 
 ---
 
 ## 🚧 Known Limitations
 
 - Freehand pencil strokes are not persisted to database (shapes only)
-- Real-time sync uses polling (1.5s interval) instead of WebSocket broadcasting
 - No rate limiting on API endpoints
 - Fixed white color for all shapes
 - No undo/redo functionality
@@ -539,7 +543,7 @@ VITE_WS_URL=ws://localhost:8080
 
 ## 🔮 Planned Features
 
-- [ ] WebSocket broadcasting for instant shape updates (replace polling)
+- [x] ✅ WebSocket broadcasting for instant shape updates (IMPLEMENTED!)
 - [ ] Freehand pencil stroke persistence
 - [ ] Color picker & line width control
 - [ ] Undo/redo functionality
@@ -653,14 +657,16 @@ cd apps/ws-backend && npm run build
 2. **Drawing Flow**
    - User draws on canvas → Captured by useCanvasDrawing hook
    - Shape data saved via canvasService → PostgreSQL
-   - Real-time polling (1.5s) fetches new shapes via useCanvasData
-   - Other users' shapes automatically merge into local state
+   - Shape instantly broadcasted to all users via WebSocket
+   - Other users' shapes automatically added to local state
    - canvasUtils renders all shapes on canvas
+   - WebSocketContext manages connection and message distribution
 
 3. **Chat Flow**
-   - Message sent via chatService → Stored in Chat table
-   - Polling (2s) via useChat hook fetches new messages
+   - Message sent via WebSocket → Stored in Chat table
+   - Messages instantly delivered to all room participants
    - Chat history loaded on room join from database
+   - Automatic reconnection maintains real-time sync
 
 ### Modular Architecture Benefits
 
@@ -683,6 +689,59 @@ Utils (Pure Functions)
 - ✅ **Maintainability**: Easy to locate and fix bugs
 - ✅ **Scalability**: Simple to add new features without breaking existing code
 - ✅ **Type Safety**: Centralized TypeScript interfaces ensure consistency
+
+### WebSocket Implementation (Real-time Updates)
+
+The application uses **WebSocket broadcasting** for instant synchronization:
+
+**Architecture:**
+```
+App.tsx
+  └─ WebSocketProvider (Single connection)
+       ├─ Room.tsx (Manages room join/leave)
+       ├─ useCanvasData (Subscribes to draw/erase/clear)
+       └─ useChat (Subscribes to chat messages)
+```
+
+**Key Components:**
+
+1. **WebSocketContext** (`contexts/WebSocketContext.tsx`)
+   - Maintains single WebSocket connection for entire app
+   - Handles authentication via JWT token in URL parameter
+   - Auto-reconnects on connection loss (3s interval)
+   - Publishes messages to all subscribed hooks via pub-sub pattern
+
+2. **useCanvasData Hook** (`hooks/useCanvasData.ts`)
+   - Subscribes to WebSocket messages for canvas updates
+   - Handles `draw`, `erase`, and `clear` events from other users
+   - Broadcasts local changes to all room participants
+   - Fetches initial canvas state from HTTP API
+
+3. **useChat Hook** (`hooks/useChat.ts`)
+   - Subscribes to WebSocket messages for chat
+   - Sends messages via WebSocket (instant delivery)
+   - Falls back to HTTP if WebSocket disconnected
+   - Loads initial chat history on room join
+
+**Message Flow:**
+```
+User Action → Hook → WebSocket.send() → Backend → Broadcast → Other Users
+
+Example: User draws circle
+1. Canvas mouseUp event
+2. saveShape() called in useCanvasData
+3. HTTP: Save to database (get dbId)
+4. WebSocket: Broadcast { type: "draw", roomId, data: shape }
+5. Backend receives and broadcasts to all users in room
+6. Other users' useCanvasData receives message
+7. Shape added to local state and rendered
+```
+
+**Benefits:**
+- ⚡ **Instant Updates**: No polling delay (was 1.5s-2s)
+- 🔋 **Efficient**: Single connection, fewer HTTP requests
+- 🔄 **Resilient**: Automatic reconnection on network issues
+- 📡 **Scalable**: Pub-sub pattern supports multiple subscribers
 
 ---
 
