@@ -1,7 +1,7 @@
 // Test chat functionality
 async function testChatInsertion() {
   const HTTP_BACKEND = 'http://localhost:3001';
-  const WS_URL = 'ws://localhost:8081';
+  const WS_URL = 'ws://localhost:8080';
   
   console.log('Testing chat functionality...\n');
   

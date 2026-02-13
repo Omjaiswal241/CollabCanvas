@@ -130,7 +130,15 @@ app.get("/chats/:roomId",async(req,res)=>
         orderBy:{
             id:"desc"
         },
-        take:50
+        take:50,
+        include:{
+            user:{
+                select:{
+                    id:true,
+                    name:true
+                }
+            }
+        }
     });
     res.json({
         messages
@@ -138,9 +146,45 @@ app.get("/chats/:roomId",async(req,res)=>
     }
     catch(e)
     {
-        
+        console.error("Error fetching messages:", e);
+        res.status(500).json({message:"Error fetching messages"});
     }
     
+})
+
+// Post a new chat message
+app.post("/chats/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        // @ts-ignore
+        const userId = req.userId;
+        const { message } = req.body;
+        
+        if (!message || !message.trim()) {
+            return res.status(400).json({ message: "Message cannot be empty" });
+        }
+        
+        const newMessage = await prismaClient.chat.create({
+            data: {
+                roomId: roomId,
+                userId: userId,
+                message: message
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        
+        res.json({ message: newMessage });
+    } catch(e) {
+        console.error("Error saving message:", e);
+        res.status(500).json({ message: "Error saving message" });
+    }
 })
 
 // Delete all chats for a room
@@ -246,6 +290,52 @@ app.get("/user/rooms", middleware, async(req, res) => {
     }
 });
 
+// Delete a room
+app.delete("/room/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        // @ts-ignore
+        const userId = req.userId;
+        
+        // Check if user is the room admin
+        const room = await prismaClient.room.findFirst({
+            where: {
+                id: roomId,
+                adminId: userId
+            }
+        });
+        
+        if (!room) {
+            return res.status(403).json({ 
+                message: "Not authorized to delete this room" 
+            });
+        }
+        
+        // Delete all related data first (canvas data and chats)
+        await prismaClient.canvasData.deleteMany({
+            where: { roomId: roomId }
+        });
+        
+        await prismaClient.chat.deleteMany({
+            where: { roomId: roomId }
+        });
+        
+        // Finally delete the room
+        await prismaClient.room.delete({
+            where: { id: roomId }
+        });
+        
+        res.json({ 
+            message: "Room deleted successfully" 
+        });
+    } catch (e) {
+        console.error("Error deleting room:", e);
+        res.status(500).json({ 
+            message: "Error deleting room" 
+        });
+    }
+});
+
 // Get canvas data for a room
 app.get("/canvas/:roomId", middleware, async(req, res) => {
     try {
@@ -270,6 +360,74 @@ app.get("/canvas/:roomId", middleware, async(req, res) => {
         res.json({ canvasData });
     } catch (e) {
         res.status(500).json({ message: "Error fetching canvas data" });
+    }
+});
+
+// Save canvas data for a room
+app.post("/canvas/:roomId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        // @ts-ignore
+        const userId = req.userId;
+        const { type, data } = req.body;
+        
+        if (!type || !data) {
+            return res.status(400).json({ message: "Type and data are required" });
+        }
+        
+        const canvasData = await prismaClient.canvasData.create({
+            data: {
+                roomId: roomId,
+                userId: userId,
+                type: type,
+                data: JSON.stringify(data)
+            }
+        });
+        
+        res.json({ canvasData });
+    } catch (e) {
+        console.error("Error saving canvas data:", e);
+        res.status(500).json({ message: "Error saving canvas data" });
+    }
+});
+
+// Delete a specific canvas item
+app.delete("/canvas/:roomId/:canvasId", middleware, async(req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        const canvasId = Number(req.params.canvasId);
+        // @ts-ignore
+        const userId = req.userId;
+        
+        // Check if the canvas item exists and belongs to this room
+        const canvasItem = await prismaClient.canvasData.findFirst({
+            where: {
+                id: canvasId,
+                roomId: roomId
+            }
+        });
+        
+        if (!canvasItem) {
+            return res.status(404).json({ 
+                message: "Canvas item not found" 
+            });
+        }
+        
+        // Delete the specific canvas item
+        await prismaClient.canvasData.delete({
+            where: {
+                id: canvasId
+            }
+        });
+        
+        res.json({ 
+            message: "Canvas item deleted successfully" 
+        });
+    } catch (e) {
+        console.error("Error deleting canvas item:", e);
+        res.status(500).json({ 
+            message: "Error deleting canvas item" 
+        });
     }
 });
 

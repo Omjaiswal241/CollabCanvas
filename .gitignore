@@ -40,6 +40,10 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 
+# Backup files
+*-old.*
+*.backup.*
+
 # Scripts (now in scripts/ folder)
 # Uncomment if you want to ignore some scripts
 # scripts/test/*.js

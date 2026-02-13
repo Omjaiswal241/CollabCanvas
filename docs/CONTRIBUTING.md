@@ -82,7 +82,7 @@ pnpm dev
 
 - Frontend: http://localhost:5173
 - HTTP API: http://localhost:3001
-- WebSocket: ws://localhost:8081
+- WebSocket: ws://localhost:8080
 
 ---
 
