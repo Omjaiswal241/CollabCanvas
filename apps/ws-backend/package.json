@@ -13,7 +13,8 @@
     "@repo/typescript-config": "workspace:*",
     "@types/ws": "^8.18.1",
     "@repo/backend-common":"workspace:*",
-    "@repo/common":"workspace:*"
+    "@repo/common":"workspace:*",
+    "@types/node": "^20.17.9"
   },
   "keywords": [],
   "author": "",
