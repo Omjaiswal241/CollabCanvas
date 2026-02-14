@@ -9,7 +9,10 @@ import { prismaClient, PrismaClient } from "@repo/db/client";
 import cors from "cors";
 const app = express();
 app.use(express.json());
-app.use(cors())
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true
+}))
 
 app.post("/signup", async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body);
@@ -470,4 +473,16 @@ app.delete("/canvas/:roomId", middleware, async(req, res) => {
     }
 });
 
-app.listen(3001);
+// Health check endpoint for monitoring
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        service: 'http-backend'
+    });
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`HTTP Backend server is running on port ${PORT}`);
+});

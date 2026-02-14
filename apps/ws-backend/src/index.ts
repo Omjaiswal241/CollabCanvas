@@ -3,7 +3,11 @@ import { WebSocketServer,WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import {prismaClient} from "@repo/db/client";
-const wss = new WebSocketServer({ port: 8080 });
+
+const PORT = parseInt(process.env.PORT || '8080', 10);
+const wss = new WebSocketServer({ port: PORT });
+
+console.log(`WebSocket server is running on port ${PORT}`);
 
 interface User{
     ws:WebSocket,
