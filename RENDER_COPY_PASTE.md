@@ -51,7 +51,7 @@ Or use this online generator: https://generate-secret.vercel.app/32
 ### Build & Start:
 - **Build Command**: 
   ```
-  pnpm install && pnpm --filter http-backend run build
+  pnpm install && pnpm --filter http-backend... run build
   ```
 
 - **Start Command**:
@@ -70,7 +70,6 @@ Or use this online generator: https://generate-secret.vercel.app/32
 |-----|-------|
 | `DATABASE_URL` | Paste your Neon connection string here |
 | `JWT_SECRET` | Paste your generated secret here |
-| `NODE_ENV` | `production` |
 
 5. Click **"Create Web Service"**
 6. Wait 5-10 minutes for deployment
@@ -95,7 +94,7 @@ Or use this online generator: https://generate-secret.vercel.app/32
 ### Build & Start:
 - **Build Command**: 
   ```
-  pnpm install && pnpm --filter ws-backend run build
+  pnpm install && pnpm --filter ws-backend... run build
   ```
 
 - **Start Command**:
@@ -114,7 +113,6 @@ Or use this online generator: https://generate-secret.vercel.app/32
 |-----|-------|
 | `DATABASE_URL` | Paste your Neon connection string (SAME as HTTP backend) |
 | `JWT_SECRET` | Paste your secret (SAME as HTTP backend - MUST match!) |
-| `NODE_ENV` | `production` |
 
 4. Click **"Create Web Service"**
 5. Wait 5-10 minutes
@@ -131,17 +129,17 @@ Or use this online generator: https://generate-secret.vercel.app/32
 ### Basic Info:
 - **Name**: `collabcanvas-frontend`
 - **Branch**: `main`
-- **Root Directory**: (leave empty)
+- **Root Directory**: `apps/collabcanvas-landing`
 
 ### Build Settings:
-- **Build Command**: 
+- **Build Command (copy this exactly):**
   ```
-  pnpm install && cd apps/collabcanvas-landing && pnpm run build
+  pnpm run build
   ```
 
 - **Publish Directory**:
   ```
-  apps/collabcanvas-landing/dist
+  dist
   ```
 
 ### Advanced:
@@ -258,6 +256,19 @@ You now have:
 ### "JWT verification failed"  
 - JWT_SECRET must be IDENTICAL in both backends
 - Check both backend environment variables
+
+### "Cannot find module '@repo/backend-common'" (Build Error)
+- Build command MUST include `...` after the package name: `pnpm --filter http-backend... run build`
+- The `...` tells pnpm to build all workspace dependencies first
+- Also ensure you did NOT set `NODE_ENV=production` (it causes pnpm to skip devDependencies)
+
+### "Publish directory does not exist" (Frontend Build Error)
+- **Root Directory:** `apps/collabcanvas-landing`
+- **Build Command:** `pnpm run build`
+- **Publish Directory:** `dist`
+- By setting Root Directory to the frontend folder, pnpm runs from within that directory
+- Render will still install workspace dependencies correctly from the monorepo root
+- Check Render logs - you should see "vite v5..." and dist file sizes (index.html, .js, .css files)
 
 ---
 
