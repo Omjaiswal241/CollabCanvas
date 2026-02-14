@@ -33,7 +33,8 @@
   "pnpm": {
     "overrides": {
       "@types/react": "19.2.2",
-      "@types/react-dom": "19.2.2"
+      "@types/react-dom": "19.2.2",
+      "@types/node": "20.17.9"
     }
   },
   "devDependencies": {
