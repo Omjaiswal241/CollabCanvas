@@ -1,0 +1,165 @@
+import { createContext, useContext, useEffect, useRef, useCallback, useState, ReactNode } from "react";
+import { WS_URL } from "@/lib/config";
+
+interface WebSocketMessage {
+  type: string;
+  [key: string]: any;
+}
+
+type MessageHandler = (message: WebSocketMessage) => void;
+
+interface WebSocketContextType {
+  isConnected: boolean;
+  sendMessage: (message: WebSocketMessage) => void;
+  joinRoom: (roomId: string | number) => void;
+  leaveRoom: (roomId: string | number) => void;
+  reconnect: () => void;
+  subscribe: (handler: MessageHandler) => () => void;
+}
+
+const WebSocketContext = createContext<WebSocketContextType | null>(null);
+
+export const useWebSocketContext = () => {
+  const context = useContext(WebSocketContext);
+  if (!context) {
+    throw new Error("useWebSocketContext must be used within WebSocketProvider");
+  }
+  return context;
+};
+
+interface WebSocketProviderProps {
+  children: ReactNode;
+}
+
+export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
+  const messageHandlersRef = useRef<Set<MessageHandler>>(new Set());
+
+  const connect = useCallback(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found, cannot connect to WebSocket");
+      return;
+    }
+
+    try {
+      const ws = new WebSocket(`${WS_URL}?token=${token}`);
+
+      ws.onopen = () => {
+        console.log("WebSocket connected");
+        setIsConnected(true);
+        
+        // Rejoin room if we were in one
+        if (currentRoomId) {
+          ws.send(JSON.stringify({
+            type: "join_room",
+            roomId: currentRoomId,
+          }));
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          // Notify all subscribers
+          messageHandlersRef.current.forEach(handler => {
+            handler(message);
+          });
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket disconnected");
+        setIsConnected(false);
+        wsRef.current = null;
+
+        // Auto-reconnect after 3 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log("Attempting to reconnect...");
+          connect();
+        }, 3000);
+      };
+
+      wsRef.current = ws;
+    } catch (error) {
+      console.error("Error creating WebSocket connection:", error);
+    }
+  }, [currentRoomId]);
+
+  const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    setIsConnected(false);
+  }, []);
+
+  const sendMessage = useCallback((message: WebSocketMessage) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(message));
+    } else {
+      console.error("WebSocket is not connected");
+    }
+  }, []);
+
+  const joinRoom = useCallback((roomId: string | number) => {
+    const roomIdStr = String(roomId);
+    setCurrentRoomId(roomIdStr);
+    sendMessage({
+      type: "join_room",
+      roomId: roomIdStr,
+    });
+  }, [sendMessage]);
+
+  const leaveRoom = useCallback((roomId: string | number) => {
+    sendMessage({
+      type: "leave_room",
+      room: String(roomId),
+    });
+    setCurrentRoomId(null);
+  }, [sendMessage]);
+
+  const subscribe = useCallback((handler: MessageHandler) => {
+    messageHandlersRef.current.add(handler);
+    return () => {
+      messageHandlersRef.current.delete(handler);
+    };
+  }, []);
+
+  useEffect(() => {
+    connect();
+
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
+  const value: WebSocketContextType = {
+    isConnected,
+    sendMessage,
+    joinRoom,
+    leaveRoom,
+    reconnect: connect,
+    subscribe,
+  };
+
+  return (
+    <WebSocketContext.Provider value={value}>
+      {children}
+    </WebSocketContext.Provider>
+  );
+};

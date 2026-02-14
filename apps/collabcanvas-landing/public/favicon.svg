@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- White background -->
+  <rect width="32" height="32" fill="#ffffff" rx="4"/>
+  
+  <!-- Canvas frame - teal color matching the theme -->
+  <rect x="6" y="6" width="20" height="20" fill="none" stroke="#2e9b8f" stroke-width="2" rx="2"/>
+  
+  <!-- Pencil/brush icon in coral accent color -->
+  <g transform="translate(10, 10)">
+    <path d="M10.5 0.5 L11.5 1.5 L3 10 L0 12 L2 9 L10.5 0.5 Z" fill="#e67350" stroke="#e67350" stroke-width="0.8" stroke-linejoin="round"/>
+    <circle cx="11" cy="1" r="0.8" fill="#e67350"/>
+  </g>
+  
+  <!-- Small circles representing collaborative users -->
+  <circle cx="20" cy="12" r="1.5" fill="#2e9b8f" opacity="0.7"/>
+  <circle cx="12" cy="20" r="1.5" fill="#e67350" opacity="0.7"/>
+</svg>
