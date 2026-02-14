@@ -1,58 +1,40 @@
-# Welcome to your Lovable project
+# CollabCanvas Landing
 
-## Project info
+This directory contains the CollabCanvas landing site built with Vite, React and TypeScript.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Note: this project is NOT connected to Lovable — all development and deployment are done locally or with your chosen hosting provider.
 
-## How can I edit this code?
+## Quick start (local development)
 
-There are several ways of editing your application.
+Requirements:
+- Node.js 18+ (or as specified in the workspace)
+- pnpm (recommended) or npm
 
-**Use Lovable**
+Steps:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```powershell
+# 1. Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Change into the landing app
+cd apps/collabcanvas-landing
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Install dependencies (pnpm recommended)
+pnpm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# 4. Start the dev server
+pnpm dev
 ```
 
-**Edit a file directly in GitHub**
+The dev server runs with Vite's fast reload for local development.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Build
 
-**Use GitHub Codespaces**
+```powershell
+pnpm build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
+## Technologies
 
 - Vite
 - TypeScript
@@ -60,14 +42,13 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+You can deploy this app with any static hosting platform that supports Vite builds (Vercel, Netlify, Cloudflare Pages, etc.). Build the site with `pnpm build` and follow your provider's instructions to publish the generated `dist` (or `build`) folder.
 
-## Can I connect a custom domain to my Lovable project?
+## Contributing
 
-Yes, you can!
+- Edit source files in `src/` and create pull requests against `main`.
+- Run `pnpm dev` locally to verify changes.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+If you want, I can add a short CONTRIBUTING snippet or deployment examples for a specific host — tell me which provider to target.
